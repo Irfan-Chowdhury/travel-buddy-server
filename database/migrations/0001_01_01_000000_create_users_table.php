@@ -15,6 +15,14 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->enum('role', ['user', 'admin'])->default('user');
+            $table->string('avatar_url')->nullable();
+            $table->string('cover_url')->nullable();
+            $table->string('location')->nullable();
+            $table->integer('age')->nullable();
+            $table->text('bio')->nullable();
+            $table->float('rating_avg', 3, 2)->default(0);
+            $table->integer('rating_count')->default(0);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
