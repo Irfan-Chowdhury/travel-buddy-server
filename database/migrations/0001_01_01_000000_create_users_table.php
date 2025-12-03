@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->enum('role', ['user', 'admin'])->default('user');
-            $table->string('avatar_url')->nullable();
+            $table->string('avatar_url')->nullable()->default('https://i.pravatar.cc/300');
             $table->string('cover_url')->nullable();
             $table->string('location')->nullable();
             $table->integer('age')->nullable();
