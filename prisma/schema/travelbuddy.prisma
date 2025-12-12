@@ -1,0 +1,141 @@
+model TravelPlan {
+  id               Int              @id @default(autoincrement())
+  userId           String           @map("user_id")
+  title            String
+  shortDescription String?          @map("short_description")
+  destination      String
+  startDate        DateTime         @map("start_date")
+  endDate          DateTime         @map("end_date")
+  budget           Int?
+  travelType       String?          @map("travel_type")
+  itinerary        Json?
+  groupSize        Int              @default(1) @map("group_size")
+  status           TravelPlanStatus @default(active)
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  host             User             @relation("TravelPlanHost", fields: [userId], references: [id], onDelete: Cascade)
+  interests        TravelPlanInterest[]
+  participants     TravelPlanParticipant[]
+  joinRequests     JoinRequest[]
+  reviews          Review[]
+  bookings         PlanBooking[]
+
+  @@map("travel_plans")
+}
+
+model TravelPlanInterest {
+  id           Int       @id @default(autoincrement())
+  travelPlanId Int       @map("travel_plan_id")
+  interestId   Int       @map("interest_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  travelPlan   TravelPlan @relation(fields: [travelPlanId], references: [id], onDelete: Cascade)
+  interest     Interest   @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@unique([travelPlanId, interestId])
+  @@map("travel_plan_interests")
+}
+
+model TravelPlanParticipant {
+  id           Int              @id @default(autoincrement())
+  travelPlanId Int              @map("travel_plan_id")
+  userId       String           @map("user_id")
+  role         ParticipantRole  @default(member)
+  status       ParticipantStatus @default(pending)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  travelPlan   TravelPlan @relation(fields: [travelPlanId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([travelPlanId, userId])
+  @@map("travel_plan_participants")
+}
+
+model JoinRequest {
+  id           Int              @id @default(autoincrement())
+  travelPlanId Int              @map("travel_plan_id")
+  userId       String           @map("user_id")
+  message      String?
+  status       JoinRequestStatus @default(pending)
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  travelPlan   TravelPlan @relation(fields: [travelPlanId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([travelPlanId, userId])
+  @@map("join_requests")
+}
+
+model Review {
+  id             Int      @id @default(autoincrement())
+  reviewerId     String   @map("reviewer_id")
+  reviewedUserId String   @map("reviewed_user_id")
+  travelPlanId   Int      @map("travel_plan_id")
+  rating         Int
+  comment        String?
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  reviewer       User     @relation("ReviewsGiven", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewedUser   User     @relation("ReviewsTaken", fields: [reviewedUserId], references: [id], onDelete: Cascade)
+  travelPlan     TravelPlan @relation(fields: [travelPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([travelPlanId, reviewerId, reviewedUserId], name: "unique_trip_reviewer_reviewed")
+  @@map("reviews")
+}
+
+model Destination {
+  id              Int      @id @default(autoincrement())
+  name            String
+  country         String
+  imageUrl        String?  @map("image_url")
+  activeTravelers Int      @default(0) @map("active_travelers")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("destinations")
+}
+
+model PlanBooking {
+  id            Int               @id @default(autoincrement())
+  travelPlanId  Int               @map("travel_plan_id")
+  userId        String            @map("user_id")
+  seats         Int               @default(1)
+  pricePerSeat  Int?              @map("price_per_seat")
+  totalAmount   Int?              @map("total_amount")
+  currency      String            @default("USD")
+  paymentStatus BookingPaymentStatus @default(pending) @map("payment_status")
+  status        BookingStatus     @default(active)
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  travelPlan    TravelPlan @relation(fields: [travelPlanId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments      Payment[]
+
+  @@map("plan_bookings")
+}
+
+model Payment {
+  id               Int          @id @default(autoincrement())
+  planBookingId    Int          @map("plan_booking_id")
+  userId           String       @map("user_id")
+  provider         String?
+  providerChargeId String?      @map("provider_charge_id")
+  amount           Int?
+  currency         String       @default("USD")
+  status           PaymentStatus @default(pending)
+  paymentMethod    String?      @map("payment_method")
+  meta             Json?
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+
+  planBooking      PlanBooking @relation(fields: [planBookingId], references: [id], onDelete: Cascade)
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}

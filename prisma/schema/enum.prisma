@@ -1,0 +1,46 @@
+enum UserRole {
+  user
+  admin
+}
+
+enum TravelPlanStatus {
+  active
+  completed
+  cancelled
+}
+
+enum ParticipantRole {
+  host
+  member
+}
+
+enum ParticipantStatus {
+  approved
+  pending
+  declined
+}
+
+enum JoinRequestStatus {
+  pending
+  approved
+  declined
+}
+
+enum BookingPaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+enum BookingStatus {
+  active
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}

@@ -1,0 +1,52 @@
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  role         UserRole  @default(user)
+  imageUrl     String?   @map("image_url")
+  location     String?
+  age          Int?
+  bio          String?
+  ratingAvg    Float     @default(0) @map("rating_avg")
+  ratingCount  Int       @default(0) @map("rating_count")
+  password     String
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  interests    UserInterest[]
+  travelPlans  TravelPlan[] @relation("TravelPlanHost")
+  participants TravelPlanParticipant[]
+  joinRequests JoinRequest[]
+  reviewsGiven Review[] @relation("ReviewsGiven")
+  reviewsTaken Review[] @relation("ReviewsTaken")
+  bookings     PlanBooking[]
+  payments     Payment[]
+
+  @@map("users")
+}
+
+model Interest {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users     UserInterest[]
+  plans     TravelPlanInterest[]
+
+  @@map("interests")
+}
+
+model UserInterest {
+  id         Int      @id @default(autoincrement())
+  userId     String   @map("user_id")
+  interestId Int      @map("interest_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  interest   Interest @relation(fields: [interestId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, interestId])
+  @@map("user_interests")
+}
